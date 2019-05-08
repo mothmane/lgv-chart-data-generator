@@ -4,22 +4,26 @@ import java.io.File
 import java.math.BigDecimal
 
 
+
 /**
  * this function parses all file in a directory and return a map of
- * having a key the file and the point where the data was calculated and the list of POint corresponding to it
+ * having a key the file and the point where the data was calculated and the list of Points corresponding to it
  *
  */
 fun initData(fileName: String): MutableMap<MeasurementData, List<Point>> {
     var map: MutableMap<MeasurementData, List<Point>> = HashMap();
     var dataFiles: MutableList<File> = ArrayList<File>()
+
     File(fileName).walk().forEach {
         if (it.isFile) dataFiles.add(it)
     }
+
     dataFiles.forEach {
         var pair = it.extractAll()
         if (!"".equals(pair.first.latitude) || !"".equals(pair.first.longitude))
             map.put(pair.first, pair.second)
     }
+
     return map;
 }
 
@@ -30,16 +34,17 @@ fun initCanals(): List<Canal> {
     var canals: MutableList<Canal> = ArrayList();
     var startFrequency = BigDecimal.valueOf(934.90)
     var step = BigDecimal.valueOf(0.2)
+
     for (n in 0..124) {
         canals.add(Canal("ARFCN${n}", startFrequency, startFrequency + step))
         startFrequency += step;
     }
+
     startFrequency = BigDecimal.valueOf(921.1)
     for (n in 955..1023) {
         canals.add(Canal("ARFCN${n}", startFrequency, startFrequency + step))
         startFrequency += step;
     }
-
 
     return canals
 }

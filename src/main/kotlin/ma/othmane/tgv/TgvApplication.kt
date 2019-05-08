@@ -1,5 +1,7 @@
 package ma.othmane.tgv
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -14,7 +16,12 @@ import kotlin.streams.toList
 
 @SpringBootApplication
 class TgvApplication {
+    val logger = logger()
+
+
     var canals = initCanals()
+
+
 
     var canalByFilesPoints: MutableMap<Canal, List<Pair<MeasurementData, Point?>>> = HashMap()
     var listOfMesurement: List<MeasurementData>? = ArrayList();
@@ -24,18 +31,30 @@ class TgvApplication {
     fun cammandLineRunner(conf: LGVConfiguration) = CommandLineRunner {
         var mapMeasurePoints = initData(conf.dataFolder)
 
-
-
+        logger.info("canals => {}", canals)
+ var i=0
         canals.forEach {
+            i++
+            logger.info("*************************************************************************")
             var canal = it
+            logger.info("canal => {}", canal)
             var listMeasureMaxPoint = mapMeasurePoints.map { it.key to it.value.filter { canal.between(it.frequency) }.maxBy { it.signalLevel } }.sortedBy { it.first.fileId }
+            logger.info(" i i i i {}",i)
+            if(i>=126 && i< 128)
+            logger.info("{}",listMeasureMaxPoint)
             listOfPairMeasurement=listMeasureMaxPoint.windowed(2,1).map { Pair(it.first().first,it.last().first) }
 
             listOfMesurement = listMeasureMaxPoint.map { it.first }
+            //logger.info("listOfMesurement => {}", listOfMesurement)
             //var distances=listOfPairs.map {
             //        distance(it.first.first.latitude.toDouble(),it.first.first.longitude.toDouble(),it.second.first.latitude.toDouble(),it.second.first.longitude.toDouble(),"K") }
             canalByFilesPoints.putIfAbsent(canal, listMeasureMaxPoint)
+
+
+            logger.info("*************************************************************************")
         }
+
+
         var pk:Double=conf.p0.toDouble();
 
         var measureStart:MeasurementData= listOfMesurement?.get(0)!!
@@ -45,8 +64,6 @@ class TgvApplication {
             "%.2f".format(Locale.ENGLISH,pk)
         }
 
-
-
         println(listDistances)
         var entryCanals: List<String> = conf.canal.split(",").map {
             it.trim()
@@ -55,7 +72,10 @@ class TgvApplication {
          }
 
         var charts = entryCanals.map { chartDataByCanal(it.toInt(), canals, canalByFilesPoints) }
-
+        for(i in 955..973){
+             var cd =chartDataByCanal(i, canals, canalByFilesPoints)
+             logger.info("Canal {} : {}",cd.canalNumber,cd.values)
+        }
 
         File(conf.destinationFolder + conf.js).writeText(chart(listDistances,charts))
 
@@ -86,6 +106,9 @@ fun Canal.between(value: Double): Boolean {
     return false;
 }
 
+inline fun <reified T> T.logger(): Logger {
+    return LoggerFactory.getLogger(T::class.java)
+}
 
 fun main(args: Array<String>) {
     runApplication<TgvApplication>(*args)
