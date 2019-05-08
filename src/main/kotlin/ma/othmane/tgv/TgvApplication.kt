@@ -38,7 +38,7 @@ class TgvApplication {
             logger.info("*************************************************************************")
             var canal = it
             logger.info("canal => {}", canal)
-            var listMeasureMaxPoint = mapMeasurePoints.map { it.key to it.value.filter { canal.between(it.frequency) }.maxBy { it.signalLevel } }.sortedBy { it.first.fileId }
+            var listMeasureMaxPoint = mapMeasurePoints.map { it.key to it.value.filter { canal.between(it.frequency) }.minBy { it.signalLevel } }.sortedBy { it.first.fileId }
             logger.info(" i i i i {}",i)
             if(i>=126 && i< 128)
             logger.info("{}",listMeasureMaxPoint)
