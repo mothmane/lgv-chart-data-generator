@@ -35,13 +35,12 @@ class TgvApplication {
  var i=0
         canals.forEach {
             i++
-            logger.info("*************************************************************************")
+          //  logger.info("*************************************************************************")
             var canal = it
-            logger.info("canal => {}", canal)
+          //  logger.info("canal => {}", canal)
             var listMeasureMaxPoint = mapMeasurePoints.map { it.key to it.value.filter { canal.between(it.frequency) }.minBy { it.signalLevel } }.sortedBy { it.first.fileId }
-            logger.info(" i i i i {}",i)
-            if(i>=126 && i< 128)
-            logger.info("{}",listMeasureMaxPoint)
+
+          //  logger.info("{}",listMeasureMaxPoint)
             listOfPairMeasurement=listMeasureMaxPoint.windowed(2,1).map { Pair(it.first().first,it.last().first) }
 
             listOfMesurement = listMeasureMaxPoint.map { it.first }
@@ -51,7 +50,7 @@ class TgvApplication {
             canalByFilesPoints.putIfAbsent(canal, listMeasureMaxPoint)
 
 
-            logger.info("*************************************************************************")
+           // logger.info("*************************************************************************")
         }
 
 
